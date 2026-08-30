@@ -1,8 +1,6 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { startLogin } from "@/const";
 
 interface SubscribersModalProps {
   isOpen: boolean;
@@ -10,9 +8,22 @@ interface SubscribersModalProps {
 }
 
 export default function SubscribersModal({ isOpen, onClose }: SubscribersModalProps) {
-  const { user, loading: authLoading } = useAuth();
+  const [password, setPassword] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-  const isOwner = user?.openId !== undefined;
+
+  const utils = trpc.useUtils();
+  const ownerStatusQuery = trpc.auth.ownerStatus.useQuery(undefined, { enabled: isOpen });
+  const isOwner = ownerStatusQuery.data?.isOwner ?? false;
+
+  const ownerLoginMutation = trpc.auth.ownerLogin.useMutation({
+    onSuccess: async () => {
+      setPassword("");
+      await utils.auth.ownerStatus.invalidate();
+    },
+    onError: () => {
+      toast.error("Incorrect password");
+    },
+  });
 
   const subscribersQuery = trpc.subscribers.list.useQuery(undefined, {
     enabled: isOpen && isOwner,
@@ -21,6 +32,11 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
   const clearAllMutation = trpc.subscribers.clearAll.useMutation();
 
   if (!isOpen) return null;
+
+  const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    ownerLoginMutation.mutate({ password });
+  };
 
   const handleExport = async () => {
     try {
@@ -54,6 +70,7 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
 
   const closeWithReset = () => {
     setShowConfirm(false);
+    setPassword("");
     onClose();
   };
 
@@ -68,18 +85,29 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
           <button className="admin-close" type="button" onClick={closeWithReset} aria-label="Close subscriber list">×</button>
         </div>
 
-        {authLoading ? (
+        {ownerStatusQuery.isLoading ? (
           <p className="admin-caption">Checking access…</p>
-        ) : !user ? (
+        ) : !isOwner ? (
           <>
-            <p className="access-denied-copy">Sign in to The Wild Brief with the owner account to view the list. The shortcut is intentionally hidden from public navigation.</p>
-            <button className="admin-button primary" type="button" onClick={() => startLogin()}>Sign in to The Wild Brief</button>
+            <p className="access-denied-copy">Enter the owner password to view the subscriber list. The shortcut is intentionally hidden from public navigation.</p>
+            <form onSubmit={handlePasswordSubmit} className="admin-actions" style={{ flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Owner password"
+                autoFocus
+                className="admin-password-input"
+              />
+              <button className="admin-button primary" type="submit" disabled={ownerLoginMutation.isPending || !password}>
+                {ownerLoginMutation.isPending ? "Checking…" : "Unlock"}
+              </button>
+            </form>
             <button className="admin-button" type="button" onClick={closeWithReset}>Close</button>
           </>
         ) : subscribersQuery.isError ? (
           <>
-            <p className="access-denied-copy">This area is reserved for The Wild Brief owner. Sign in to The Wild Brief, then open the hidden panel again.</p>
-            <button className="admin-button primary" type="button" onClick={() => startLogin()}>Sign in to The Wild Brief</button>
+            <p className="access-denied-copy">Something went wrong loading the list. Try closing and reopening this panel.</p>
             <button className="admin-button" type="button" onClick={closeWithReset}>Close</button>
           </>
         ) : (
