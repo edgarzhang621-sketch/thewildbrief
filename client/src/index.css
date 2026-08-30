@@ -235,6 +235,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 .admin-button.danger { border-color: transparent; background: var(--danger); color: #fff; }
 .admin-button.primary { width: 100%; margin-top: 10px; border-color: transparent; background: var(--accent); color: #fff; }
 .admin-button:disabled { cursor: not-allowed; opacity: .46; }
+.admin-password-input { width: 100%; padding: 11px 13px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-muted); color: var(--ink); font-size: .9rem; }
+.admin-password-input:focus { outline: none; border-color: var(--accent); }
 .access-denied-copy { margin: 0 0 18px; color: var(--muted); font-size: .9rem; }
 
 @media (max-width: 860px) { .hero-layout { grid-template-columns: 1fr; padding-top: 64px; } .hero-note { max-width: 590px; justify-self: end; transform: rotate(1.2deg); } .steps-grid { grid-template-columns: repeat(2,1fr); } }
