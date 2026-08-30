@@ -17,7 +17,7 @@ export default function SitePageShell({ eyebrow, title, intro, children }: SiteP
       <div className="canopy-shell">
         <header className="site-header">
           <Link href="/" className="brand-link" aria-label="The Wild Brief home">
-            <img className="brand-logo" src="/manus-storage/the-wild-brief-logo_f905fbfb.png" alt="The Wild Brief Environmental Intelligence" />
+            <img className="brand-logo" src="/logo.png" alt="The Wild Brief Environmental Intelligence" />
           </Link>
           <div className="header-actions">
             <nav className="page-nav" aria-label="Main navigation">
