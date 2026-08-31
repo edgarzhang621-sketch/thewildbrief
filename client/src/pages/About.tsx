@@ -18,8 +18,8 @@ export default function About() {
         <div className="inner-section-label">01 / Purpose</div>
         <div>
           <h2 className="inner-section-title" id="about-purpose-title">One useful briefing.</h2>
-          <p className="inner-section-copy">The Wild Brief is a weekly environmental briefing that brings related developments into one clear read.</p>
-          <p className="inner-section-copy">It is built to help readers understand how policy, wildlife conservation, animal health, field science, and technology relate to each other.</p>
+          <p className="inner-section-copy">The Wild Brief is a weekly environmental briefing covering climate policy, wildlife and conservation, animal health and field science, and clean technology.</p>
+          <p className="inner-section-copy">Instead of tracking four separate news feeds or chasing scattered headlines, readers get one clear, well-organized summary each week — covering everything that matters across these four areas, without needing to read anything else.</p>
         </div>
       </section>
 
