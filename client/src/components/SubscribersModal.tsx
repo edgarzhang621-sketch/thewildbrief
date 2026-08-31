@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -8,34 +8,41 @@ interface SubscribersModalProps {
 }
 
 export default function SubscribersModal({ isOpen, onClose }: SubscribersModalProps) {
-  const [password, setPassword] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  // Only held in memory for as long as the panel stays open. Never
+  // persisted (no cookie, no localStorage), so closing this panel and
+  // reopening it always requires the password again.
+  const [unlockedPassword, setUnlockedPassword] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const utils = trpc.useUtils();
-  const ownerStatusQuery = trpc.auth.ownerStatus.useQuery(undefined, { enabled: isOpen });
-  const isOwner = ownerStatusQuery.data?.isOwner ?? false;
+  const subscribersQuery = trpc.subscribers.list.useQuery(
+    { password: unlockedPassword ?? "" },
+    {
+      enabled: isOpen && unlockedPassword !== null,
+      retry: false,
+    }
+  );
 
-  const ownerLoginMutation = trpc.auth.ownerLogin.useMutation({
-    onSuccess: async () => {
-      setPassword("");
-      await utils.auth.ownerStatus.invalidate();
-    },
-    onError: () => {
+  useEffect(() => {
+    if (subscribersQuery.isError && unlockedPassword !== null) {
       toast.error("Incorrect password");
-    },
-  });
+      setUnlockedPassword(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscribersQuery.isError]);
 
-  const subscribersQuery = trpc.subscribers.list.useQuery(undefined, {
-    enabled: isOpen && isOwner,
-  });
-  const exportCsvQuery = trpc.subscribers.exportCsv.useQuery(undefined, { enabled: false });
+  const exportCsvQuery = trpc.subscribers.exportCsv.useQuery(
+    { password: unlockedPassword ?? "" },
+    { enabled: false }
+  );
   const clearAllMutation = trpc.subscribers.clearAll.useMutation();
 
   if (!isOpen) return null;
 
   const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    ownerLoginMutation.mutate({ password });
+    setUnlockedPassword(passwordInput);
+    setPasswordInput("");
   };
 
   const handleExport = async () => {
@@ -58,8 +65,9 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
   };
 
   const handleClear = async () => {
+    if (!unlockedPassword) return;
     try {
-      await clearAllMutation.mutateAsync();
+      await clearAllMutation.mutateAsync({ password: unlockedPassword });
       setShowConfirm(false);
       await subscribersQuery.refetch();
       toast.success("Subscriber list cleared");
@@ -68,11 +76,16 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
     }
   };
 
+  // Wipes the password from memory every time the panel closes, so it must
+  // be re-entered the next time it's opened.
   const closeWithReset = () => {
     setShowConfirm(false);
-    setPassword("");
+    setPasswordInput("");
+    setUnlockedPassword(null);
     onClose();
   };
+
+  const isUnlocked = unlockedPassword !== null && !subscribersQuery.isError;
 
   return (
     <div className="admin-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-title">
@@ -85,29 +98,22 @@ export default function SubscribersModal({ isOpen, onClose }: SubscribersModalPr
           <button className="admin-close" type="button" onClick={closeWithReset} aria-label="Close subscriber list">×</button>
         </div>
 
-        {ownerStatusQuery.isLoading ? (
-          <p className="admin-caption">Checking access…</p>
-        ) : !isOwner ? (
+        {!isUnlocked ? (
           <>
-            <p className="access-denied-copy">Enter the owner password to view the subscriber list. The shortcut is intentionally hidden from public navigation.</p>
+            <p className="access-denied-copy">Enter the owner password to view the subscriber list. You'll need to enter it again each time you open this panel.</p>
             <form onSubmit={handlePasswordSubmit} className="admin-actions" style={{ flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
               <input
                 type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                value={passwordInput}
+                onChange={e => setPasswordInput(e.target.value)}
                 placeholder="Owner password"
                 autoFocus
                 className="admin-password-input"
               />
-              <button className="admin-button primary" type="submit" disabled={ownerLoginMutation.isPending || !password}>
-                {ownerLoginMutation.isPending ? "Checking…" : "Unlock"}
+              <button className="admin-button primary" type="submit" disabled={subscribersQuery.isFetching || !passwordInput}>
+                {subscribersQuery.isFetching ? "Checking…" : "Unlock"}
               </button>
             </form>
-            <button className="admin-button" type="button" onClick={closeWithReset}>Close</button>
-          </>
-        ) : subscribersQuery.isError ? (
-          <>
-            <p className="access-denied-copy">Something went wrong loading the list. Try closing and reopening this panel.</p>
             <button className="admin-button" type="button" onClick={closeWithReset}>Close</button>
           </>
         ) : (
