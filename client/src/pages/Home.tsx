@@ -89,7 +89,7 @@ export default function Home() {
       <div className="canopy-shell">
         <header className="site-header">
           <a href="#top" className="brand-link" aria-label="The Wild Brief home">
-            <img className="brand-logo" src="/manus-storage/the-wild-brief-logo_f905fbfb.png" alt="The Wild Brief Environmental Intelligence" />
+            <img className="brand-logo" src="/logo.png" alt="The Wild Brief Environmental Intelligence" />
           </a>
           <div className="header-actions">
             <nav className="page-nav" aria-label="Main navigation">
@@ -183,7 +183,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="archive-section" aria-labelledby="past-editions-title">
+                    <section className="archive-section" aria-labelledby="past-editions-title">
             <div className="archive-heading">
               <span className="section-index">03 / This week's edition</span>
               <h2 className="section-title" id="past-editions-title">Read this week's edition.</h2>
