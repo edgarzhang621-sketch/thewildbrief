@@ -133,13 +133,13 @@ export default function Home() {
               </div>
             </div>
 
-            <aside className="hero-note" aria-label="Past edition available">
+                        <aside className="hero-note" aria-label="This week's edition available">
               <div className="note-inner">
-                <div className="note-kicker"><span>Past edition</span><span className="note-number">01</span></div>
-                <h2 className="note-title">August 16–22, 2026.</h2>
+                <div className="note-kicker"><span>Available now</span><span className="note-number">PDF</span></div>
+                <h2 className="note-title">This week's edition.</h2>
                 <p className="note-quote">Climate, Wildlife, Animal Science, and Clean Tech.</p>
                 <div className="note-rule" />
-                <Link href="/editions/august-16-22-2026" className="edition-request-email">Read edition →</Link>
+                <a href="/editions/this-weeks-edition.pdf" download className="edition-request-email">View this week's edition →</a>
               </div>
             </aside>
           </section>
