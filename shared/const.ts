@@ -1,160 +1,37 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { trpc } from "@/lib/trpc";
-import { toast } from "sonner";
+export const COOKIE_NAME = "app_session_id";
+export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
+export const AXIOS_TIMEOUT_MS = 30_000;
+export const UNAUTHED_ERR_MSG = 'Please login (10001)';
+export const NOT_ADMIN_ERR_MSG = 'You do not have required permission (10002)';
 
-interface SubscribersModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+// One-time nonce cookie that binds an OAuth login to the browser that started
+// it. The `__Host-` prefix forces the cookie host-only (Secure, Path=/, no
+// Domain), so a sibling *.manus.space site cannot plant a matching value in a
+// victim's browser.
+export const OAUTH_STATE_COOKIE = "__Host-oauth_state";
 
-export default function SubscribersModal({ isOpen, onClose }: SubscribersModalProps) {
-  const [passwordInput, setPasswordInput] = useState("");
-  // Only held in memory for as long as the panel stays open. Never
-  // persisted (no cookie, no localStorage), so closing this panel and
-  // reopening it always requires the password again.
-  const [unlockedPassword, setUnlockedPassword] = useState<string | null>(null);
-  const [showConfirm, setShowConfirm] = useState(false);
+// `state` carries the callback redirect URI (used at token exchange) plus the
+// CSRF nonce. Defined here so the client encoder and server decoder never drift.
+export type OAuthState = { redirectUri: string; nonce?: string };
 
-  const subscribersQuery = trpc.subscribers.list.useQuery(
-    { password: unlockedPassword ?? "" },
-    {
-      enabled: isOpen && unlockedPassword !== null,
-      retry: false,
-    }
-  );
+export const encodeOAuthState = (state: OAuthState): string =>
+  btoa(JSON.stringify(state));
 
-  useEffect(() => {
-    if (subscribersQuery.isError && unlockedPassword !== null) {
-      toast.error("Incorrect password");
-      setUnlockedPassword(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscribersQuery.isError]);
-
-  const exportCsvQuery = trpc.subscribers.exportCsv.useQuery(
-    { password: unlockedPassword ?? "" },
-    { enabled: false }
-  );
-  const clearAllMutation = trpc.subscribers.clearAll.useMutation();
-
-  if (!isOpen) return null;
-
-  const handlePasswordSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setUnlockedPassword(passwordInput);
-    setPasswordInput("");
-  };
-
-  const handleExport = async () => {
-    try {
-      const result = await exportCsvQuery.refetch();
-      if (!result.data) return;
-      const blob = new Blob([result.data.csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = result.data.filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      toast.success("Subscriber list exported");
-    } catch {
-      toast.error("Could not export the subscriber list");
-    }
-  };
-
-  const handleClear = async () => {
-    if (!unlockedPassword) return;
-    try {
-      await clearAllMutation.mutateAsync({ password: unlockedPassword });
-      setShowConfirm(false);
-      await subscribersQuery.refetch();
-      toast.success("Subscriber list cleared");
-    } catch {
-      toast.error("Could not clear the subscriber list");
-    }
-  };
-
-  // Wipes the password from memory every time the panel closes, so it must
-  // be re-entered the next time it's opened.
-  const closeWithReset = () => {
-    setShowConfirm(false);
-    setPasswordInput("");
-    setUnlockedPassword(null);
-    onClose();
-  };
-
-  const isUnlocked = unlockedPassword !== null && !subscribersQuery.isError;
-
-  return (
-    <div className="admin-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-title">
-      <div className="admin-card">
-        <div className="admin-header">
-          <div>
-            <p className="admin-kicker">Owner access</p>
-            <h2 className="admin-title" id="admin-title">Subscriber list</h2>
-          </div>
-          <button className="admin-close" type="button" onClick={closeWithReset} aria-label="Close subscriber list">×</button>
-        </div>
-
-        {!isUnlocked ? (
-          <>
-            <p className="access-denied-copy">Enter the owner password to view the subscriber list. You'll need to enter it again each time you open this panel.</p>
-            <form onSubmit={handlePasswordSubmit} className="admin-actions" style={{ flexDirection: "column", alignItems: "stretch", gap: "0.5rem" }}>
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={e => setPasswordInput(e.target.value)}
-                placeholder="Owner password"
-                autoFocus
-                className="admin-password-input"
-              />
-              <button className="admin-button primary" type="submit" disabled={subscribersQuery.isFetching || !passwordInput}>
-                {subscribersQuery.isFetching ? "Checking…" : "Unlock"}
-              </button>
-            </form>
-            <button className="admin-button" type="button" onClick={closeWithReset}>Close</button>
-          </>
-        ) : (
-          <>
-            <p className="admin-caption">Addresses collected here are for your own manual newsletter workflow.</p>
-            <div className="admin-list" aria-live="polite">
-              {subscribersQuery.isLoading ? (
-                <p className="admin-empty">Loading subscribers…</p>
-              ) : subscribersQuery.data && subscribersQuery.data.length > 0 ? (
-                subscribersQuery.data.map((subscriber, index) => (
-                  <div className="admin-subscriber" key={subscriber.id}>{index + 1}. {subscriber.email}</div>
-                ))
-              ) : (
-                <p className="admin-empty">No subscribers yet.</p>
-              )}
-            </div>
-
-            {showConfirm && (
-              <div className="admin-confirm">
-                <p>Delete every saved subscriber? This cannot be undone.</p>
-                <div className="admin-actions">
-                  <button className="admin-button" type="button" onClick={() => setShowConfirm(false)}>Cancel</button>
-                  <button className="admin-button danger" type="button" onClick={handleClear} disabled={clearAllMutation.isPending}>
-                    {clearAllMutation.isPending ? "Clearing…" : "Confirm clear"}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="admin-actions">
-              <button className="admin-button" type="button" onClick={handleExport} disabled={!subscribersQuery.data?.length || exportCsvQuery.isFetching}>
-                {exportCsvQuery.isFetching ? "Preparing…" : "Export CSV"}
-              </button>
-              <button className="admin-button danger" type="button" onClick={() => setShowConfirm(true)} disabled={!subscribersQuery.data?.length || showConfirm}>
-                Clear all
-              </button>
-            </div>
-            <button className="admin-button primary" type="button" onClick={closeWithReset}>Close</button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+export const decodeOAuthState = (state: string): OAuthState => {
+  let decoded: string;
+  try {
+    decoded = atob(state);
+  } catch {
+    // Malformed base64 (e.g. attacker-supplied garbage). Return no nonce so the
+    // callback's CSRF guard rejects it with 403 — never throw, since the caller
+    // runs outside the request handler's try/catch.
+    return { redirectUri: "" };
+  }
+  try {
+    const parsed = JSON.parse(decoded);
+    if (parsed && typeof parsed.redirectUri === "string") return parsed;
+  } catch {
+    // Legacy links: `state` was a bare base64(redirectUri) with no nonce.
+  }
+  return { redirectUri: decoded };
+};
