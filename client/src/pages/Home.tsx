@@ -20,7 +20,7 @@ const wildlifeFacts = [
   {
     title: "44% of CMS-listed species",
     description: "Nearly half of species listed under the Convention on Migratory Species are showing population declines.",
-    sourceLabel: "UNEP — State of the World’s Migratory Species",
+    sourceLabel: "UNEP — State of the World's Migratory Species",
     sourceUrl: "https://www.unep.org/news-and-stories/press-release/landmark-un-report-worlds-migratory-species-animals-are-decline-and",
   },
 ];
@@ -89,7 +89,7 @@ export default function Home() {
       <div className="canopy-shell">
         <header className="site-header">
           <a href="#top" className="brand-link" aria-label="The Wild Brief home">
-            <img className="brand-logo" src="/logo.png" alt="The Wild Brief Environmental Intelligence" />
+            <img className="brand-logo" src="/manus-storage/the-wild-brief-logo_f905fbfb.png" alt="The Wild Brief Environmental Intelligence" />
           </a>
           <div className="header-actions">
             <nav className="page-nav" aria-label="Main navigation">
@@ -133,13 +133,13 @@ export default function Home() {
               </div>
             </div>
 
-            <aside className="hero-note" aria-label="Past editions by email">
+            <aside className="hero-note" aria-label="Past edition available">
               <div className="note-inner">
-                <div className="note-kicker"><span>Past editions</span><span className="note-number">↗</span></div>
-                <h2 className="note-title">Need an older edition?</h2>
-                <p className="note-quote">Subscribe, then email us for a past edition.</p>
+                <div className="note-kicker"><span>Past edition</span><span className="note-number">01</span></div>
+                <h2 className="note-title">August 16–22, 2026.</h2>
+                <p className="note-quote">Climate, Wildlife, Animal Science, and Clean Tech.</p>
                 <div className="note-rule" />
-                <a href="mailto:thewildbriefweekly@gmail.com" className="edition-request-email">thewildbriefweekly@gmail.com ↗</a>
+                <Link href="/editions/august-16-22-2026" className="edition-request-email">Read edition →</Link>
               </div>
             </aside>
           </section>
@@ -185,12 +185,23 @@ export default function Home() {
 
           <section className="archive-section" aria-labelledby="past-editions-title">
             <div className="archive-heading">
-              <span className="section-index">03 / Past editions</span>
-              <h2 className="section-title" id="past-editions-title">Request an older edition.</h2>
+              <span className="section-index">03 / This week's edition</span>
+              <h2 className="section-title" id="past-editions-title">Read this week's edition.</h2>
+            </div>
+            <div className="archive-list">
+              <article className="edition-row">
+                <span className="edition-number" aria-hidden="true">PDF</span>
+                <div className="edition-main">
+                  <span className="edition-label">This week</span>
+                  <h3><a href="/editions/this-weeks-edition.pdf" download>Climate, Wildlife, Animal Science, and Clean Tech</a></h3>
+                  <p>Climate policy, wildlife &amp; conservation, animal health &amp; field science, and clean technology.</p>
+                </div>
+                <a className="edition-status" href="/editions/this-weeks-edition.pdf" download>Download PDF →</a>
+              </article>
             </div>
             <div className="archive-request" role="note">
-              <span className="archive-request-kicker">By email</span>
-              <p><a href="#email-input">Subscribe</a>, then email <a href="mailto:thewildbriefweekly@gmail.com">thewildbriefweekly@gmail.com</a> for past editions.</p>
+              <span className="archive-request-kicker">Older editions</span>
+              <p>Need an older edition? <a href="#email-input">Subscribe</a>, then email <a href="mailto:thewildbriefweekly@gmail.com">thewildbriefweekly@gmail.com</a> for a past edition.</p>
             </div>
           </section>
         </main>
