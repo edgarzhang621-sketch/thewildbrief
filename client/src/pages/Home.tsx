@@ -133,13 +133,13 @@ export default function Home() {
               </div>
             </div>
 
-                                    <aside className="hero-note" aria-label="This week's edition available">
+                                                <aside className="hero-note" aria-label="This week's edition available">
               <div className="note-inner">
                 <div className="note-kicker"><span>This week</span><span className="note-number">PDF</span></div>
                 <h2 className="note-title">One briefing. Four topics.</h2>
                 <p className="note-quote">See what this week covers before you subscribe.</p>
                 <div className="note-rule" />
-                <a href="/editions/this-weeks-edition.pdf" download className="edition-request-email">Get this week's PDF →</a>
+                <a href="/editions/this-weeks-edition.pdf" target="_blank" rel="noreferrer" className="edition-request-email">View this week's edition →</a>
               </div>
             </aside>
           </section>
@@ -183,10 +183,10 @@ export default function Home() {
             </div>
           </section>
 
-                    <section className="archive-section" aria-labelledby="past-editions-title">
+                              <section className="archive-section" aria-labelledby="past-editions-title">
             <div className="archive-heading">
               <span className="section-index">03 / This week's edition</span>
-              <h2 className="section-title" id="past-editions-title">Read this week's edition.</h2>
+              <h2 className="section-title" id="past-editions-title">Download this week's edition.</h2>
             </div>
             <div className="archive-list">
               <article className="edition-row">
