@@ -255,7 +255,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .issue-chip { display: none; }
   .theme-button { padding: 8px 10px; white-space: nowrap; }
   .hero-layout { gap: 44px; padding: 58px 0 54px; }
-  .hero-title { max-width: 100%; font-size: clamp(2.85rem,15vw,5.2rem); overflow-wrap: anywhere; }
+  .hero-title { max-width: 100%; font-size: clamp(2.15rem,9.5vw,3.4rem); line-height: 1.08; letter-spacing: -.03em; overflow-wrap: anywhere; }
   .hero-lede { font-size: .98rem; }
   .subscribe-form { flex-direction: column; }
   .subscribe-button { min-height: 49px; }
@@ -302,7 +302,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   .brand-subtitle { font-size: .52rem; }
   .theme-button { padding-inline: 9px; font-size: .7rem; }
   .hero-layout { padding-top: 48px; }
-  .hero-title { font-size: clamp(2.6rem,14.2vw,3.25rem); letter-spacing: -.07em; }
+  .hero-title { font-size: clamp(1.95rem,9vw,2.5rem); line-height: 1.1; letter-spacing: -.025em; }
   .hero-lede { font-size: .94rem; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
