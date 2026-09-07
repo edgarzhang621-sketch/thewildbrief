@@ -41,9 +41,10 @@ export default function SitePageShell({ eyebrow, title, intro, children }: SiteP
           {children}
         </main>
 
-        <footer className="site-footer">
+                <footer className="site-footer">
           <Link href="/" className="footer-home">← Back to The Wild Brief</Link>
           <a className="footer-contact" href="mailto:thewildbriefweekly@gmail.com">Contact: thewildbriefweekly@gmail.com</a>
+          <a className="footer-contact" href="https://instagram.com/thewildbriefweekly" target="_blank" rel="noreferrer">Instagram: @thewildbriefweekly</a>
           <span>© 2026 The Wild Brief</span>
         </footer>
       </div>
