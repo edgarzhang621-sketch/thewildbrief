@@ -92,9 +92,10 @@ export default function Home() {
             <img className="brand-logo" src="/logo.png" alt="The Wild Brief Environmental Intelligence" />
           </a>
           <div className="header-actions">
-            <nav className="page-nav" aria-label="Main navigation">
+                        <nav className="page-nav" aria-label="Main navigation">
               <Link href="/">Home</Link>
               <Link href="/about">About</Link>
+              <a href="https://instagram.com/thewildbriefweekly" target="_blank" rel="noreferrer">Instagram</a>
             </nav>
             <span className="issue-chip">A weekly briefing</span>
             <button className="theme-button" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
