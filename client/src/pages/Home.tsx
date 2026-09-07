@@ -206,9 +206,10 @@ export default function Home() {
           </section>
         </main>
 
-        <footer className="site-footer">
+                <footer className="site-footer">
           <span className="footer-credit" onClick={handleCopyrightClick} title="Triple-click for owner access">© 2026 The Wild Brief</span>
           <a className="footer-contact" href="mailto:thewildbriefweekly@gmail.com">Contact: thewildbriefweekly@gmail.com</a>
+          <a className="footer-contact" href="https://instagram.com/thewildbriefweekly" target="_blank" rel="noreferrer">Instagram: @thewildbriefweekly</a>
         </footer>
       </div>
 
